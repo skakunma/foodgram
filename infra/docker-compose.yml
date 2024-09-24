@@ -19,7 +19,7 @@ services:
       - backend
   nginx:
     container_name: foodgram-proxy
-    image: nginx:1.25.4-alpine
+    image: skakunma/foodgrram_nginx:latest
     ports:
       - "8080:80"
     volumes:
