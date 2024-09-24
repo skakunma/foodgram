@@ -1,3 +1,4 @@
+"""Модели для api."""
 from django.contrib.auth.models import (
     AbstractBaseUser, PermissionsMixin, UserManager
 )
@@ -8,6 +9,8 @@ import base64
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    """Модель для пользователей."""
+
     email = models.EmailField(
         unique=True,
         validators=[EmailValidator(
@@ -32,9 +35,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     def __str__(self):
+        """Возвращает username."""
         return self.username
 
     def set_avatar(self, base64_image, user):
+        """base64 to file."""
         if base64_image.startswith('data:image/'):
             header, imgstr = base64_image.split(';base64,')
             ext = header.split('/')[1]
@@ -44,22 +49,30 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Tag(models.Model):
+    """Модель тегов."""
+
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
 
     def __str__(self):
+        """Возвращает name."""
         return self.name
 
 
 class Ingredient(models.Model):
+    """Молдель ингредиентов."""
+
     name = models.CharField(max_length=256)
     measurement_unit = models.CharField(max_length=256)
 
     def __str__(self):
+        """Возвращает id."""
         return str(self.id)
 
 
 class Recipe(models.Model):
+    """Молдель рецептов."""
+
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=256)
     text = models.TextField()
@@ -76,6 +89,8 @@ class Recipe(models.Model):
 
 
 class RecipeIngredient(models.Model):
+    """Молдель рецептов и ингредиентов(связная)."""
+
     recipe = models.ForeignKey(Recipe, related_name='recipe_ingredients',
                                on_delete=models.CASCADE)
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
@@ -83,30 +98,42 @@ class RecipeIngredient(models.Model):
 
 
 class FavoriteRecipe(models.Model):
+    """Таблица избранного."""
+
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              related_name='favorite_recipes')
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
                                related_name='favorited_by')
 
     class Meta:
+        """Мета."""
+
         unique_together = ('user', 'recipe')
 
 
 class ShoppingCart(models.Model):
+    """Таблица корзины."""
+
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              related_name='shopping_cart')
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
                                related_name='in_shopping_cart')
 
     class Meta:
+        """Мета."""
+
         unique_together = ('user', 'recipe')
 
 
 class Subscription(models.Model):
+    """Таблица подписок."""
+
     user = models.ForeignKey(User, related_name='subscriptions',
                              on_delete=models.CASCADE)
     subscribed_to = models.ForeignKey(User, related_name='subscribers',
                                       on_delete=models.CASCADE)
 
     class Meta:
+        """Мета."""
+
         unique_together = ('user', 'subscribed_to')

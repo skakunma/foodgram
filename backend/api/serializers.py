@@ -67,11 +67,7 @@ class UserSubscribedSerializer(serializers.ModelSerializer):
         ]
 
     def get_is_subscribed(self, obj):
-
-        """Проверяет, подписан ли текущий пользователь
-        на данного пользователя.
-        """
-
+        """Проверяет, подписан ли текущий пользователь."""
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return Subscription.objects.filter(
@@ -80,10 +76,7 @@ class UserSubscribedSerializer(serializers.ModelSerializer):
         return False
 
     def get_recipes(self, obj):
-        """Получает рецепты, созданные пользователем, с
-        ограничением по количеству.
-        """
-
+        """Получает рецепты, созданные пользователем."""
         recipes = Recipe.objects.filter(
             author=obj)[:self.context.get('recipes_limit', None)]
         return RecipeSerializer(recipes, many=True).data
@@ -131,7 +124,8 @@ class TagSerializer(serializers.ModelSerializer):
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     """Сериализатор для представления ингредиентов в рецепте."""
 
-    ingredient = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    ingredient = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all())
     amount = serializers.IntegerField()
 
     class Meta:
@@ -174,7 +168,11 @@ class RecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        """Обновляет существующий рецепт и связывает его с новыми ингредиентами и тегами."""
+        """
+        Обновляет существующий рецепт и связывает.
+
+        его с новыми ингредиентами и тегами.
+        """
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
 

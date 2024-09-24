@@ -1,3 +1,4 @@
+"""views для api."""
 from rest_framework import generics, status, permissions, viewsets
 from .models import (User, Tag, Recipe, Ingredient, RecipeIngredient,
                      ShoppingCart, FavoriteRecipe, Subscription)
@@ -24,13 +25,16 @@ from django.urls import reverse
 
 class LoginAPIView(generics.CreateAPIView):
     """Класс для обработки запроса входа пользователя.
+
     Валидация учетных данных и создание токена для аутентификации.
     """
+
     model = User
     serializer_class = LoginSerializer
     permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
+        """обработка post запроса(вход)."""
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
@@ -53,22 +57,28 @@ class LoginAPIView(generics.CreateAPIView):
 
 class UserDetailView(generics.RetrieveAPIView):
     """Класс для получения информации о текущем пользователе.
+
     Возвращает данные аутентифицированного пользователя.
     """
+
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
+        """Возвращает request.user."""
         return self.request.user
 
 
 class LogoutAPIView(generics.GenericAPIView):
     """Класс для обработки выхода пользователя.
-    Блокирует refresh токен для завершения сессии."""
+
+    Блокирует refresh токен для завершения сессии.
+    """
 
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        """обработка post запроса."""
         try:
             refresh_token = request.data.get('refresh_token')
             token = RefreshToken(refresh_token)
@@ -86,12 +96,15 @@ class LogoutAPIView(generics.GenericAPIView):
 
 class SetPasswordAPIView(generics.UpdateAPIView):
     """Класс для изменения пароля пользователя.
-    Обрабатывает POST запрос для обновления пароля."""
+
+    Обрабатывает POST запрос для обновления пароля.
+    """
 
     serializer_class = SetPasswordSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        """Обработка post запроса."""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = request.user
@@ -104,19 +117,24 @@ class SetPasswordAPIView(generics.UpdateAPIView):
 
 class UserViewSet(viewsets.ViewSet):
     """Класс для работы с пользователями.
-    Обрабатывает GET и POST запросы для получения и создания пользователей."""
+
+    Обрабатывает GET и POST запросы для получения и создания пользователей.
+    """
 
     def list(self, request):
+        """Обработка GET запроса."""
         queryset = User.objects.all()
         serializer = UserSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
+        """Обработка GET запроса по pk."""
         user = get_object_or_404(User, pk=pk)
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
     def create(self, request):
+        """Обработка POST зароса."""
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -126,16 +144,19 @@ class UserViewSet(viewsets.ViewSet):
 
 class TagViewSet(viewsets.ViewSet):
     """Класс для работы с тегами.
+
     Обрабатывает GET запросы для получения списка тегов и информации
     о конкретном теге.
     """
 
     def list(self, request):
+        """Обработка get запроса."""
         queryset = Tag.objects.all()
         serializer = TagSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
+        """GET по pk."""
         tag = get_object_or_404(Tag, pk=pk)
         serializer = TagSerializer(tag)
         return Response(serializer.data)
@@ -143,22 +164,27 @@ class TagViewSet(viewsets.ViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """Класс для работы с рецептами.
+
     Обрабатывает CRUD операции для рецептов, включая фильтрацию,
     создание и управление избранным и корзиной.
     """
+
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     pagination_class = RecipePagination
 
     def get_serializer_class(self):
-        """Возвращает соответствующий сериализатор
-            в зависимости от действия."""
+        """Возвращает соответствующий сериализатор.
+
+        в зависимости от действия.
+        """
         if self.action in ['retrieve', 'list']:
             return RecipeDetailSerializer
         return RecipeSerializer
 
     def get_link(self, request, id=None):
         """Создает короткую ссылку на рецепт.
+
         Если короткая ссылка еще не создана, генерирует новую.
         """
         recipe = get_object_or_404(Recipe, id=id)
@@ -178,7 +204,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                                             kwargs={'id': recipe.id}))
 
     def get_queryset(self):
-        """Возвращает отфильтрованный список рецептов на основе
+        """Возвращает отфильтрованный список рецептов на основе.
+
         параметров запроса, таких как избранные, в корзине, автор и теги.
         """
         queryset = super().get_queryset()
@@ -214,6 +241,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         """Создает новый рецепт.
+
         Сохраняет изображение и ингредиенты, привязывает автора.
         """
         if request.user.is_authenticated:
@@ -264,6 +292,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         """Обновляет существующий рецепт.
+
         Изменяет изображение, ингредиенты и теги.
         """
         partial = kwargs.pop('partial', False)
@@ -421,7 +450,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 @permission_classes([permissions.IsAuthenticated])
 def avatar_view(request):
     """Обрабатывает обновление и удаление аватара пользователя."""
-
     user = request.user
 
     if request.method == 'PUT':
@@ -446,7 +474,9 @@ def avatar_view(request):
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """Класс для работы с ингредиентами.
-      Позволяет выполнять GET запросы для получения списка ингредиентов."""
+
+    Позволяет выполнять GET запросы для получения списка ингредиентов.
+    """
 
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
@@ -456,7 +486,9 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class UserSubscriptionViewSet(viewsets.GenericViewSet):
     """Класс для управления подписками пользователей.
-      Обрабатывает подписки на других пользователей."""
+
+    Обрабатывает подписки на других пользователей.
+    """
 
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = UserSubscriptionPagination
@@ -464,7 +496,6 @@ class UserSubscriptionViewSet(viewsets.GenericViewSet):
     @action(detail=False, methods=['get'])
     def subscriptions(self, request):
         """Возвращает список подписок текущего пользователя."""
-
         subscriptions = Subscription.objects.filter(
             user=request.user).select_related('subscribed_to')
         page = self.paginate_queryset(subscriptions)
@@ -487,7 +518,6 @@ class UserSubscriptionViewSet(viewsets.GenericViewSet):
     @action(detail=True, methods=['post', 'delete'])
     def subscribe(self, request, id=None):
         """Подписка или отписка от пользователя."""
-
         user_to_subscribe = get_object_or_404(User, id=id)
 
         if request.method == 'POST':
