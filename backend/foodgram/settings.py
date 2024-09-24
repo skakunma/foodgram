@@ -67,9 +67,9 @@ CORS_ALLOW_METHODS = [
     "OPTIONS"
 ]
 
-CSRF_TRUSTED_ORIGINS = ['skakunfoodgram.zapto.org']
+CSRF_TRUSTED_ORIGINS = ['http://skakunfoodgram.zapto.org', 'https://skakunfoodgram.zapto.org']
 
-CSRF_COOKIE_DOMAIN = 'skakunfoodgram.zapto.org'
+CSRF_COOKIE_DOMAIN='skakunfoodgram.zapto.org'
 
 CORS_ALLOW_HEADERS = [
     "content-type",
