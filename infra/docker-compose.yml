@@ -1,17 +1,41 @@
 version: '3.3'
 services:
-
+  backend:
+    container_name: foodgram-backend
+    image: skakunma/foodgrram_backend:latest
+    volumes:
+      - media:/app/media  
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
   frontend:
     container_name: foodgram-front
-    build: ../frontend
+    image: skakunma/foodgrram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
+    depends_on:
+      - backend
   nginx:
     container_name: foodgram-proxy
     image: nginx:1.25.4-alpine
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
+      - media:/app/media  
+    depends_on:
+      - backend
+      - frontend
+  db:
+    image: postgres:13
+    env_file: .env
+    volumes:
+      - data_foodgram_prod_2:/var/lib/postgresql/data
+
+volumes:
+  media:
+  data_foodgram_prod_2:
