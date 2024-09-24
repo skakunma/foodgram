@@ -9,5 +9,4 @@ djangorestframework-simplejwt
 psycopg
 psycopg2
 pydevd-pycharm
-corsheaders
 django-cors-headers==3.13.0
