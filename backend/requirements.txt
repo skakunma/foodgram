@@ -10,3 +10,4 @@ psycopg
 psycopg2
 pydevd-pycharm
 corsheaders
+django-cors-headers
