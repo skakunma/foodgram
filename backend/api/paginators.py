@@ -2,6 +2,7 @@ from rest_framework import pagination
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 
+
 class RecipePagination(pagination.PageNumberPagination):
     page_size = 6
     page_size_query_param = 'limit'
@@ -15,6 +16,7 @@ class RecipePagination(pagination.PageNumberPagination):
             'previous': self.get_previous_link(),
             'results': data
         })
+
 
 class UserSubscriptionPagination(PageNumberPagination):
     page_size = 10

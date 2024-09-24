@@ -1,9 +1,12 @@
 from rest_framework import serializers
-from .models import (User, Recipe, Ingredient, Tag, RecipeIngredient,
-                     FavoriteRecipe, ShoppingCart, Subscription)
+from .models import (
+    User, Recipe, Ingredient, Tag, RecipeIngredient,
+    FavoriteRecipe, ShoppingCart, Subscription
+)
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
+
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -13,8 +16,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
+
     email = serializers.CharField(required=True)
     password = serializers.CharField(required=True, write_only=True)
+
     class Meta:
         model = User
         fields = ['email', 'password']
@@ -22,6 +27,7 @@ class LoginSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = ['id', 'email', 'username', 'first_name', 'last_name',
@@ -29,6 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserSubscribedSerializer(serializers.ModelSerializer):
+
     is_subscribed = serializers.SerializerMethodField()
     recipes_count = serializers.IntegerField(source='recipes.count',
                                              read_only=True)
@@ -54,6 +61,7 @@ class UserSubscribedSerializer(serializers.ModelSerializer):
 
 
 class SetPasswordSerializer(serializers.Serializer):
+
     current_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
 
@@ -81,6 +89,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
+
     ingredient = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all())
     amount = serializers.IntegerField()
@@ -91,6 +100,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
+
     ingredients = RecipeIngredientSerializer(many=True,
                                              write_only=True)
     tags = serializers.PrimaryKeyRelatedField(many=True,
@@ -140,6 +150,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeDetailSerializer(serializers.ModelSerializer):
+
     ingredients = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
     author = serializers.SerializerMethodField()
@@ -191,7 +202,9 @@ class RecipeDetailSerializer(serializers.ModelSerializer):
 
 
 class AvatarSerializer(serializers.ModelSerializer):
+
     avatar = serializers.ImageField(read_only=True)
+
     class Meta:
         model = User
         fields = ['avatar']

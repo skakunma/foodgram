@@ -1,5 +1,6 @@
-from django.contrib.auth.models import (AbstractBaseUser, PermissionsMixin,
-                                        UserManager)
+from django.contrib.auth.models import (
+    AbstractBaseUser, PermissionsMixin, UserManager
+)
 from django.core.validators import EmailValidator, RegexValidator
 from django.db import models
 from django.core.files.base import ContentFile

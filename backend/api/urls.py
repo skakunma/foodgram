@@ -33,6 +33,5 @@ urlpatterns = [
     path('users/set_password/', views.SetPasswordAPIView.as_view(),
          name='set-password'),
     path('', include(router.urls)),
-    path('users/me/avatar/', views.avatar_view, name='avatar'),
-
+    path('users/me/avatar/', views.avatar_view, name='avatar')
 ]
