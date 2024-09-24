@@ -117,5 +117,3 @@ jobs:
           sudo docker compose -f docker-compose.yml up -d
           # Выполняет миграции и сбор статики
           sudo docker compose -f docker-compose.yml exec backend python manage.py migrate
-
-   
