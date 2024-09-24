@@ -9,3 +9,4 @@ djangorestframework-simplejwt
 psycopg
 psycopg2
 pydevd-pycharm
+corsheaders
