@@ -1,12 +1,13 @@
+"""Ручки api."""
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from api import views
 
 router = DefaultRouter()
-router.register(r'users', views.UserViewSet, basename='user')
-router.register(f'tags', views.TagViewSet, basename='tag')
-router.register(f'recipes', views.RecipeViewSet, basename='recipe')
-router.register(r'ingredients', views.IngredientViewSet, basename='ingredient')
+router.register('users', views.UserViewSet, basename='user')
+router.register('tags', views.TagViewSet, basename='tag')
+router.register('recipes', views.RecipeViewSet, basename='recipe')
+router.register('ingredients', views.IngredientViewSet, basename='ingredient')
 
 urlpatterns = [
     path('auth/token/login/', views.LoginAPIView.as_view(), name='login'),

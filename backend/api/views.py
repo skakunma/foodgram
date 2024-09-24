@@ -1,7 +1,6 @@
 from rest_framework import generics, status, permissions, viewsets
 from .models import (User, Tag, Recipe, Ingredient, RecipeIngredient,
                      ShoppingCart, FavoriteRecipe, Subscription)
-                     
 from .serializers import (RegistrationSerializer, LoginSerializer,
                           UserSerializer, SetPasswordSerializer, TagSerializer,
                           RecipeSerializer, RecipeDetailSerializer,
@@ -17,7 +16,6 @@ from .paginators import RecipePagination, UserSubscriptionPagination
 import json
 from rest_framework import filters
 from django.core.files.base import ContentFile
-import hashlib
 from django.http import HttpResponseRedirect
 import base64
 import uuid
@@ -65,9 +63,9 @@ class UserDetailView(generics.RetrieveAPIView):
 
 
 class LogoutAPIView(generics.GenericAPIView):
-    """Класс для обработки выхода пользователя. 
-    Блокирует refresh токен для завершения сессии.
-    """
+    """Класс для обработки выхода пользователя.
+    Блокирует refresh токен для завершения сессии."""
+
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
@@ -87,9 +85,9 @@ class LogoutAPIView(generics.GenericAPIView):
 
 
 class SetPasswordAPIView(generics.UpdateAPIView):
-    """Класс для изменения пароля пользователя. 
-    Обрабатывает POST запрос для обновления пароля.
-    """
+    """Класс для изменения пароля пользователя.
+    Обрабатывает POST запрос для обновления пароля."""
+
     serializer_class = SetPasswordSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -105,10 +103,9 @@ class SetPasswordAPIView(generics.UpdateAPIView):
 
 
 class UserViewSet(viewsets.ViewSet):
-    """Класс для работы с пользователями. 
-    Обрабатывает GET и POST запросы для получения и создания пользователей.
-    """
-    
+    """Класс для работы с пользователями.
+    Обрабатывает GET и POST запросы для получения и создания пользователей."""
+
     def list(self, request):
         queryset = User.objects.all()
         serializer = UserSerializer(queryset, many=True)
@@ -128,11 +125,11 @@ class UserViewSet(viewsets.ViewSet):
 
 
 class TagViewSet(viewsets.ViewSet):
-    """Класс для работы с тегами. 
+    """Класс для работы с тегами.
     Обрабатывает GET запросы для получения списка тегов и информации
     о конкретном теге.
     """
-    
+
     def list(self, request):
         queryset = Tag.objects.all()
         serializer = TagSerializer(queryset, many=True)
@@ -144,9 +141,8 @@ class TagViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
-
 class RecipeViewSet(viewsets.ModelViewSet):
-    """Класс для работы с рецептами. 
+    """Класс для работы с рецептами.
     Обрабатывает CRUD операции для рецептов, включая фильтрацию,
     создание и управление избранным и корзиной.
     """
@@ -162,7 +158,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return RecipeSerializer
 
     def get_link(self, request, id=None):
-        """Создает короткую ссылку на рецепт. 
+        """Создает короткую ссылку на рецепт.
         Если короткая ссылка еще не создана, генерирует новую.
         """
         recipe = get_object_or_404(Recipe, id=id)
@@ -182,7 +178,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                                             kwargs={'id': recipe.id}))
 
     def get_queryset(self):
-        """Возвращает отфильтрованный список рецептов на основе 
+        """Возвращает отфильтрованный список рецептов на основе
         параметров запроса, таких как избранные, в корзине, автор и теги.
         """
         queryset = super().get_queryset()
@@ -217,7 +213,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return queryset
 
     def create(self, request, *args, **kwargs):
-        """Создает новый рецепт. 
+        """Создает новый рецепт.
         Сохраняет изображение и ингредиенты, привязывает автора.
         """
         if request.user.is_authenticated:
@@ -267,7 +263,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_401_UNAUTHORIZED)
 
     def update(self, request, *args, **kwargs):
-        """Обновляет существующий рецепт. 
+        """Обновляет существующий рецепт.
         Изменяет изображение, ингредиенты и теги.
         """
         partial = kwargs.pop('partial', False)
@@ -341,7 +337,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=[permissions.IsAuthenticated])
-
     def shopping_cart(self, request, id=None):
         """Добавляет или удаляет рецепт из списка покупок."""
         recipe = get_object_or_404(Recipe, id=id)
@@ -373,7 +368,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'],
             permission_classes=[permissions.IsAuthenticated])
-
     def download_shopping_cart(self, request):
         """Скачивает список покупок в текстовом формате."""
         shopping_cart_items = ShoppingCart.objects.filter(
@@ -393,7 +387,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=[permissions.IsAuthenticated])
-
     def favorite(self, request, id=None):
         """Добавляет или удаляет рецепт из избранного."""
         recipe = get_object_or_404(Recipe, id=id)
