@@ -22,6 +22,7 @@ from django.http import HttpResponseRedirect
 import base64
 import uuid
 from django.urls import reverse
+from .filters import RecipeFilter
 
 
 class LoginAPIView(generics.CreateAPIView):
@@ -35,24 +36,22 @@ class LoginAPIView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
-        """обработка post запроса(вход)."""
+        """Обработка POST-запроса (вход)."""
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
             password = serializer.validated_data['password']
-            try:
-                user = User.objects.get(email=email)
-            except User.DoesNotExist:
-                return Response({'detail': 'Invalid credentials'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            if password == user.password:
+
+            # Используем filter().first() для получения пользователя
+            user = User.objects.filter(email=email).first()
+            if user.password == password:
                 refresh = RefreshToken.for_user(user)
                 return Response({
                     'auth_token': str(refresh.access_token),
                 }, status=status.HTTP_200_OK)
-        else:
-            return Response({'detail': 'Invalid credentials'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'detail': 'Invalid credentials'},
+                                status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -173,6 +172,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     pagination_class = RecipePagination
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         """Возвращает соответствующий сериализатор.
@@ -205,39 +205,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
                                             kwargs={'id': recipe.id}))
 
     def get_queryset(self):
-        """Возвращает отфильтрованный список рецептов на основе.
+        """Возвращает отфильтрованный список рецептов на.
 
-        параметров запроса, таких как избранные, в корзине, автор и теги.
+        основе параметров запроса.
         """
         queryset = super().get_queryset()
-
-        is_favorited = self.request.query_params.get('is_favorited')
-        is_in_shopping_cart = self.request.query_params.get(
-            'is_in_shopping_cart')
-        author_id = self.request.query_params.get('author')
-        tags = self.request.query_params.getlist('tags')
-        date_from = self.request.query_params.get('date_from')
-        date_to = self.request.query_params.get('date_to')
-
-        if date_from:
-            queryset = queryset.filter(data_time__gte=date_from)
-        if date_to:
-            queryset = queryset.filter(data_time__lte=date_to)
-
-        if is_favorited == 'true':
-            queryset = queryset.filter(is_favorited=True)
-
-        if is_in_shopping_cart == 'true':
-            queryset = queryset.filter(is_in_shopping_cart=True)
-
-        if author_id:
-            queryset = queryset.filter(author_id=author_id)
-
-        if tags:
-            queryset = queryset.filter(tags__slug__in=tags).distinct()
-
-        queryset = queryset.order_by('-data_time')
-
+        # Остальные параметры фильтрации, если нужно
         return queryset
 
     def create(self, request, *args, **kwargs):

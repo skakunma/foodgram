@@ -10,3 +10,4 @@ psycopg
 psycopg2
 pydevd-pycharm
 django-cors-headers==3.13.0
+django-filter
