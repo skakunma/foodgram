@@ -5,6 +5,7 @@ from django.contrib.auth.models import (
 from django.core.validators import EmailValidator, RegexValidator
 from django.core.files.base import ContentFile
 import base64
+from django.utils import timezone
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -30,6 +31,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     avatar = models.ImageField(upload_to='avatars', blank=True, null=True)
     REQUIRED_FIELDS = ['email', 'password', 'first_name', 'last_name']
     USERNAME_FIELD = 'username'
+    date_joined = models.DateTimeField(default=timezone.now)
     is_staff = models.BooleanField(default=False)
     objects = UserManager()
 
