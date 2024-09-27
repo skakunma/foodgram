@@ -1,7 +1,8 @@
 """views для api."""
 from rest_framework import generics, status, permissions, viewsets
-from .models import (User, Tag, Recipe, Ingredient, RecipeIngredient,
+from .models import (Tag, Recipe, Ingredient, RecipeIngredient,
                      ShoppingCart, FavoriteRecipe, Subscription)
+from users.models import User
 from .serializers import (RegistrationSerializer, LoginSerializer,
                           UserSerializer, SetPasswordSerializer, TagSerializer,
                           RecipeSerializer, RecipeDetailSerializer,
