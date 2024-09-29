@@ -9,7 +9,8 @@ from .serializers import (RegistrationSerializer, LoginSerializer,
                           IngredientSerializer, UserSubscribedSerializer)
 
 from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, action
 from django.shortcuts import get_object_or_404
@@ -42,12 +43,14 @@ class LoginAPIView(generics.CreateAPIView):
             email = serializer.validated_data['email']
             password = serializer.validated_data['password']
 
-            # Используем filter().first() для получения пользователя
+            # Аутентификация пользователя
             user = User.objects.filter(email=email).first()
+
             if user.password == password:
-                refresh = RefreshToken.for_user(user)
+                # Создаем или получаем токен для пользователя
+                token, created = Token.objects.get_or_create(user=user)
                 return Response({
-                    'auth_token': str(refresh.access_token),
+                    'auth_token': str(token.key),
                 }, status=status.HTTP_200_OK)
             else:
                 return Response({'detail': 'Invalid credentials'},
@@ -77,18 +80,26 @@ class LogoutAPIView(generics.GenericAPIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
-        """обработка post запроса."""
-        try:
-            refresh_token = request.data.get('refresh_token')
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            if not refresh_token:
-                return Response({'detail': 'Refresh token is required.'},
-                                status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({'detail': 'Token has been blacklisted.'},
-                            status=status.HTTP_205_RESET_CONTENT)
+    def post(self, request, *args, **kwargs):
+        """Обработка POST-запроса (выход)."""
+        try:
+            # Получаем токен из заголовка Authorization
+            auth_header = request.headers.get('Authorization')
+            if auth_header and auth_header.startswith('Token '):
+                token_key = auth_header.split(' ')[1]
+                token = Token.objects.filter(key=token_key).first()
+
+                if token:
+                    token.delete()  # Удаляем токен
+                    return Response({'detail': 'Successfully logged out.'},
+                                    status=status.HTTP_200_OK)
+                else:
+                    return Response({'detail': 'Invalid token.'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'detail': 'Token is required in the Authorization header.'},
+                                status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'detail': str(e)},
                             status=status.HTTP_400_BAD_REQUEST)

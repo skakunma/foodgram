@@ -40,25 +40,8 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'users.apps.UsersConfig',
     'rest_framework',
-    'rest_framework_simplejwt',
+    'rest_framework.authtoken',
     'django_filters',
-    'corsheaders'
-]
-
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-
-CORS_ALLOW_METHODS = [
-    "GET",
-    "POST",
-    "PUT",
-    "DELETE",
-    "OPTIONS"
-]
-
-CORS_ALLOW_HEADERS = [
-    "content-type",
-    "authorization",
 ]
 
 MIDDLEWARE = [
@@ -69,7 +52,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'foodgram.middleware.token_to_bearer.TokenToBearerMiddleware'
 ]
 
 
@@ -149,7 +131,7 @@ USE_TZ = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
 }
 
