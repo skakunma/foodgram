@@ -98,8 +98,7 @@ class LogoutAPIView(generics.GenericAPIView):
             else:
                 return Response({
                     'detail': 'Token is required in the Authorization header.'
-                },
-                                status=status.HTTP_400_BAD_REQUEST)
+                }, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'detail': str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
