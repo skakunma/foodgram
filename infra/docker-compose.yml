@@ -34,8 +34,8 @@ services:
     image: postgres:13
     env_file: .env
     volumes:
-      - data_foodgram_prod_6:/var/lib/postgresql/data
+      - data_foodgram_prod_7:/var/lib/postgresql/data
 
 volumes:
   media:
-  data_foodgram_prod_6:
+  data_foodgram_prod_7:
